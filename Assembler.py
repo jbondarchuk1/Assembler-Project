@@ -2,6 +2,10 @@ import os
 import re
 from AssemInstruc import comp, jump, dest, label
 
+# I left in a few random print statements that dont need to be in here and I feel like the code is pretty messy but the project
+# was a really great learning experience about super low level hdl, computer components and calculations, and how we might create 
+# parsers like this that would actually work as assemblers, though I would assume we wouldn't be using an interpreted language for it
+
 class assembler:
     def __init__ (self, file):
         self.file = file
@@ -24,47 +28,46 @@ class assembler:
             line = line.strip()
             if line != '':
                 currentLineNumber += 1
-                # print(f'line={line}, line number= {currentLineNumber}')
                 if line[0] == '(':
                     myLabel = line
-                    # myLabel = line[:len(line)-1]
                     personalLabel[myLabel] = currentLineNumber-numberOfVariables-1
                     numberOfVariables += 1
 
-        # print(personalLabel)
         variableCounter = 0
         preParse1 = []
         namedSymbols = {}
-        for line in preParse: # removing comments
+        
+        # removing comments
+        for line in preParse: 
             line = line[:len(line)-1]
             if '//' in line:
                 commentOut = re.split(r'[/]', line)
                 line = commentOut[0]
             line = line.strip()
 
-            if line != '': # don't include whitespace
-                if line[0] != '(': # don't include lines with (variable)
-                    if line[0] == '@':
-                        try: # handling of @memory variables
-                            int(line[1:])
-                        except:
-                            personalLabelCheck = '('+line[1:]+')'
-                            if line[1:] in label.keys(): # handling of preset symbols
-                                line = '@' + label[line[1:]]
+            if line != '' and line[0] != '(': # don't include whitespace
+                if line[0] == '@': # don't include lines with (variable)
+                    try: # handling of @memory variables
+                        int(line[1:])
+                    except:
+                        personalLabelCheck = '('+line[1:]+')'
+                        if line[1:] in label.keys(): # handling of preset symbols
+                            line = '@' + label[line[1:]]
 
-                            elif personalLabelCheck in personalLabel.keys(): # handling of named symbols that reference an area in the code
-                                line = '@' + f'{str(personalLabel[personalLabelCheck])}'
-                                numberOfVariables -=1
+                        elif personalLabelCheck in personalLabel.keys(): # handling of named symbols that reference an area in the code
+                            line = '@' + f'{str(personalLabel[personalLabelCheck])}'
+                            numberOfVariables -=1
 
-                            else: # handling of arbitrarily named symbols
-                                print(line)
-                                if line in namedSymbols.keys():
-                                    line = '@' + f'{namedSymbols[line] + 16}'
-                                elif line not in namedSymbols.keys():
-                                    namedSymbols[line] = variableCounter
-                                    line = '@' + f'{str(16 + variableCounter)}'
-                                    variableCounter += 1
-                    preParse1.append(line)
+                        else: # handling of arbitrarily named symbols
+                            print(line)
+                            if line in namedSymbols.keys():
+                                line = '@' + f'{namedSymbols[line] + 16}'
+                            elif line not in namedSymbols.keys():
+                                namedSymbols[line] = variableCounter
+                                line = '@' + f'{str(16 + variableCounter)}'
+                                variableCounter += 1
+
+                preParse1.append(line)
         print(f'named symbols: {namedSymbols.keys()}')
         # print(preParse1)
         return preParse1
@@ -134,13 +137,13 @@ class assembler:
 
         # print(hackFileContents)
 
-add = assembler("projects/06/add/Add.asm")
-Max = assembler("projects/06/max/Max.asm")
-pong = assembler("projects/06/pong/Pong.asm")
-rect = assembler("projects/06/rect/Rect.asm")
-MaxL = assembler("projects/06/max/MaxL.asm")
+# add = assembler("projects/06/add/Add.asm")
+# Max = assembler("projects/06/max/Max.asm")
+pong = assembler("./Pong.asm")
+# rect = assembler("projects/06/rect/Rect.asm")
+# MaxL = assembler("projects/06/max/MaxL.asm")
 
-add.parser()
-Max.parser()
+# add.parser()
+# Max.parser()
 pong.parser()
-rect.parser()
+# rect.parser()
